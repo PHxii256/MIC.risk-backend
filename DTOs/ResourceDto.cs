@@ -27,4 +27,10 @@ namespace MIC.risk.DTOs
         string? Description,
         DateTimeOffset UploadedAt
     );
+
+    public record ResourceFileResult(
+        Stream Content,
+        string ContentType,
+        string FileName
+    );
 }

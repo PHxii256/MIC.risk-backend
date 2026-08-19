@@ -79,7 +79,7 @@ public class RiskReportService : IRiskReportService
             query = query.Where(r =>
                 EF.Functions.Like(r.Description, $"%{term}%") ||
                 EF.Functions.Like(r.Employee.Name, $"%{term}%") ||
-                EF.Functions.Like(r.SubCategory.Name, $"%{term}%"));
+                EF.Functions.Like(r.SubCategory.NameEn, $"%{term}%"));
         }
 
         query = ApplySort(query, sortBy, sortDir);
@@ -181,7 +181,7 @@ public class RiskReportService : IRiskReportService
         {
             "status" => descending ? query.OrderByDescending(r => r.Status) : query.OrderBy(r => r.Status),
             "reporter" => descending ? query.OrderByDescending(r => r.Employee.Name) : query.OrderBy(r => r.Employee.Name),
-            "subcategory" => descending ? query.OrderByDescending(r => r.SubCategory.Name) : query.OrderBy(r => r.SubCategory.Name),
+            "subcategory" => descending ? query.OrderByDescending(r => r.SubCategory.NameEn) : query.OrderBy(r => r.SubCategory.NameEn),
             "inherentrisk" => descending
                 ? query.OrderByDescending(r => (r.AuditorEvaluation ?? r.ReportedEvaluation).InherentRisk)
                 : query.OrderBy(r => (r.AuditorEvaluation ?? r.ReportedEvaluation).InherentRisk),

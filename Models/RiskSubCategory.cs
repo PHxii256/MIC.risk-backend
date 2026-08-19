@@ -9,9 +9,8 @@ namespace MIC.risk.Models
     public class RiskSubCategory
     {
         public long Id { get; set; }
-        [Column("Name")]
-
-        public required string Name { get; set; } = null!;
+        public required string NameEn { get; set; } = null!;
+        public required string NameAr { get; set; } = null!;
         public required string Category { get; set; } = null!;
         public bool Active { get; set; } = true;
     }

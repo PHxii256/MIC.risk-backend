@@ -95,7 +95,7 @@ namespace MIC.risk.Data
             {
                 e.ToTable("RiskSubCategory");
                 e.HasKey(sc => sc.Id);
-                e.Property(sc => sc.Name).IsRequired();
+                e.Property(sc => sc.NameEn).IsRequired();
                 e.Property(sc => sc.Category).IsRequired();
                 e.Property(sc => sc.Active).HasDefaultValue(true);
 

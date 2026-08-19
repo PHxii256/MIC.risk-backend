@@ -28,7 +28,7 @@ namespace MIC.risk.Services
         }
         public async Task<RiskSubcategoryResponseDto> CreateRiskSubcategoryAsync(CreateRiskSubcategoryRequestDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            if (string.IsNullOrWhiteSpace(dto.NameEn) && string.IsNullOrWhiteSpace(dto.NameAr))
             {
                 throw new InvalidOperationException("Please Provide A Valid Subcategory Name.");
             }
@@ -40,7 +40,7 @@ namespace MIC.risk.Services
             }
 
             var subCategoryExists = await _context.RiskSubCategories
-                .AnyAsync(r => r.Name == dto.Name);
+                .AnyAsync(r => r.NameEn == dto.NameEn);
 
             if (subCategoryExists)
             {
@@ -57,7 +57,7 @@ namespace MIC.risk.Services
 
         public async Task<RiskSubcategoryResponseDto?> UpdateRiskSubcategoryAsync(long id, UpdateRiskSubcategoryRequestDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Name))
+            if (string.IsNullOrWhiteSpace(dto.NameEn) && string.IsNullOrWhiteSpace(dto.NameAr))
             {
                 throw new InvalidOperationException("Please Provide A Valid Subcategory Name.");
             }
@@ -77,14 +77,15 @@ namespace MIC.risk.Services
             }
 
             var duplicateName = await _context.RiskSubCategories
-                .AnyAsync(r => r.Name == dto.Name && r.Id != id);
+                .AnyAsync(r => (r.NameEn == dto.NameEn || r.NameAr == dto.NameAr) && r.Id != id);
 
             if (duplicateName)
             {
                 throw new InvalidOperationException("Subcategory Already Exists.");
             }
 
-            entity.Name = dto.Name;
+            entity.NameEn = dto.NameEn;
+            entity.NameAr = dto.NameAr;
             entity.Category = dto.Category;
             await _context.SaveChangesAsync();
 
@@ -115,9 +116,11 @@ namespace MIC.risk.Services
                 .GroupBy(sc => sc.Category)
                 .Select(g => new RiskCategoryResponseDto(
                     g.Key,
+                    g.Key,
                     g.Select(sc => new RiskSubcategoryDto(
                         sc.Id,
-                        sc.Name
+                        sc.NameEn,
+                        sc.NameAr
                     ))
                 ))
                 .ToListAsync();
@@ -142,7 +145,7 @@ namespace MIC.risk.Services
 
             return await query
             .Where(sc => sc.Category == category && sc.Active)
-            .Select(sc => new RiskSubcategoryResponseDto(sc.Id, sc.Name, sc.Category)).ToListAsync();
+            .Select(sc => new RiskSubcategoryResponseDto(sc.Id, sc.NameEn, sc.NameAr, sc.Category)).ToListAsync();
         }
     }
 }

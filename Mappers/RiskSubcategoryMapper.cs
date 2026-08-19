@@ -13,7 +13,8 @@ namespace MIC.risk.Mappers
         {
             return new RiskSubcategoryResponseDto(
                 riskSubcategory.Id,
-                riskSubcategory.Name,
+                riskSubcategory.NameEn,
+                riskSubcategory.NameAr,
                 riskSubcategory.Category
             );
         }
@@ -22,7 +23,8 @@ namespace MIC.risk.Mappers
         {
             return new RiskSubCategory
             {
-                Name = dto.Name,
+                NameEn = dto.NameEn,
+                NameAr = dto.NameAr,
                 Category = dto.Category,
                 Active = true
             };

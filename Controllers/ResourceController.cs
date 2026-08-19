@@ -44,6 +44,41 @@ public class ResourceController : ControllerBase
         return Ok(resource);
     }
 
+    [HttpGet("{id:long}/download")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Download(
+        long id,
+        CancellationToken cancellationToken)
+    {
+        var resource = await _resourceService.GetByIdAsync(id, cancellationToken);
+
+        if (resource == null)
+        {
+            return this.NotFoundProblem($"Resource with ID {id} was not found.");
+        }
+
+        // Only server-stored resources should reach this endpoint.
+        if (resource.Type is not ("File" or "Image"))
+        {
+            return this.BadRequestProblem(
+                "This resource is not a server-stored file.");
+        }
+
+        // Get the actual file from your storage.
+        var file = await _resourceService.GetFileAsync(id, cancellationToken);
+
+        if (file == null)
+        {
+            return this.NotFoundProblem("The resource file was not found.");
+        }
+
+        return File(
+            file.Content,
+            file.ContentType,
+            file.FileName);
+    }
+
     [HttpPost]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(ResourceResponseDto), StatusCodes.Status201Created)]

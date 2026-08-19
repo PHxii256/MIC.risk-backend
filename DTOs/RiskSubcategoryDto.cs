@@ -2,27 +2,32 @@ namespace MIC.risk.DTOs
 {
     public record RiskSubcategoryResponseDto(
         long Id,
-        string Name,
+        string NameEn,
+        string NameAr,
         string Category
     );
 
     public record RiskSubcategoryDto(
         long Id,
-        string Name
+        string NameEn,
+        string NameAr
     );
 
     public record CreateRiskSubcategoryRequestDto(
-        string Name,
+        string NameEn,
+        string NameAr,
         string Category
     );
 
     public record UpdateRiskSubcategoryRequestDto(
-        string Name,
+        string NameEn,
+        string NameAr,
         string Category
     );
 
     public record RiskCategoryResponseDto(
-        string Name,
+        string NameEn,
+        string NameAr,
         IEnumerable<RiskSubcategoryDto> RiskSubcategories
     );
 }

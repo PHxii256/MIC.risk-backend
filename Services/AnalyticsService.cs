@@ -103,7 +103,7 @@ public class AnalyticsService : IAnalyticsService
 
         var riskSubcategoryDistribution = reports
             .Where(r => r.SubCategory.Active)
-            .GroupBy(r => r.SubCategory.Name)
+            .GroupBy(r => r.SubCategory.NameEn)
             .Select(g => new CountByLabelDto(g.Key, g.Count()))
             .OrderByDescending(x => x.Count)
             .ToList();

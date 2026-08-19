@@ -150,4 +150,10 @@ public class ResourceService : IResourceService
             throw new InvalidOperationException("Resource type must be one of: Video, Image, File, Quiz, Link.");
         }
     }
+
+    public Task<ResourceFileResult?> GetFileAsync(long id, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
 }
