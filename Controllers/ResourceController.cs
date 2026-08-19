@@ -76,7 +76,8 @@ public class ResourceController : ControllerBase
         return File(
             file.Content,
             file.ContentType,
-            file.FileName);
+            file.FileName,
+            enableRangeProcessing: true);
     }
 
     [HttpPost]

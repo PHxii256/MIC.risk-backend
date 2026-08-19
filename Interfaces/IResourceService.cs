@@ -10,8 +10,6 @@ public interface IResourceService
     Task<ResourceResponseDto> CreateAsync(CreateResourceRequestDto dto, CancellationToken cancellationToken = default);
     Task<ResourceResponseDto?> PatchAsync(long id, PatchResourceRequestDto dto, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(long id, CancellationToken cancellationToken = default);
-    Task<ResourceFileResult?> GetFileAsync(
-    long id,
-    CancellationToken cancellationToken);
+    Task<ResourceFileResult?> GetFileAsync(long id, CancellationToken cancellationToken = default);
     Task<ResourceResponseDto> UploadAsync(long uploadedByEmpId, string name, IFormFile file, string? description = null, CancellationToken cancellationToken = default);
 }

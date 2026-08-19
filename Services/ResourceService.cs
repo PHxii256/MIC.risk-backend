@@ -151,9 +151,48 @@ public class ResourceService : IResourceService
         }
     }
 
-    public Task<ResourceFileResult?> GetFileAsync(long id, CancellationToken cancellationToken)
+    public async Task<ResourceFileResult?> GetFileAsync(
+        long id,
+        CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        var resource = await _context.Resources
+            .AsNoTracking()
+            .Where(r => r.Id == id && r.Active && (r.Type == "File" || r.Type == "Image"))
+            .Select(r => new { r.Name, r.Url })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (resource == null)
+        {
+            return null;
+        }
+
+        var storedFile = await _fileStorageService.OpenReadAsync(resource.Url, cancellationToken);
+        if (storedFile == null)
+        {
+            return null;
+        }
+
+        var fileName = BuildDownloadFileName(resource.Name, storedFile.StoredFileName);
+        return new ResourceFileResult(storedFile.Content, storedFile.ContentType, fileName);
+    }
+
+    private static string BuildDownloadFileName(string resourceName, string storedFileName)
+    {
+        var safeName = Path.GetFileName(resourceName.Trim());
+        foreach (var invalidCharacter in Path.GetInvalidFileNameChars())
+        {
+            safeName = safeName.Replace(invalidCharacter, '_');
+        }
+
+        if (string.IsNullOrWhiteSpace(safeName))
+        {
+            safeName = "resource";
+        }
+
+        var extension = Path.GetExtension(storedFileName);
+        return safeName.EndsWith(extension, StringComparison.OrdinalIgnoreCase)
+            ? safeName
+            : $"{safeName}{extension}";
     }
 
 }

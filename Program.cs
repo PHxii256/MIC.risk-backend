@@ -86,6 +86,7 @@ builder.Services.AddCors(options =>
             policy.WithOrigins(origins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
+                .WithExposedHeaders("Content-Disposition")
 
                 // Required for the refresh-token cookie to be sent and set cross-origin.
                 // Incompatible with AllowAnyOrigin by specification, hence the explicit list.
