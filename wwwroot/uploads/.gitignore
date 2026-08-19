@@ -1,0 +1,3 @@
+# Runtime upload target. The directory is kept; its contents are not source.
+*
+!.gitignore

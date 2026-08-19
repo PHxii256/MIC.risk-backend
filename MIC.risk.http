@@ -1,0 +1,6 @@
+@MIC.risk_HostAddress = http://localhost:5166
+
+GET {{MIC.risk_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
