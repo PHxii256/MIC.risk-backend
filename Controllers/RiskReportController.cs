@@ -97,6 +97,7 @@ public class RiskReportController : ControllerBase
     [HttpPost("{id:long}/auditor-evaluation")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(RiskReportResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AttachAuditorEvaluation(
         long id,
@@ -141,6 +142,7 @@ public class RiskReportController : ControllerBase
     [HttpPatch("{id:long}/status")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(RiskReportResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateStatus(
         long id,

@@ -11,6 +11,8 @@ namespace MIC.risk.Services;
 
 public class EmployeeService : IEmployeeService
 {
+    public const string InitialPassword = "Test1234!";
+
     private readonly ApplicationDBContext _context;
     private readonly UserManager<AppUser> _userManager;
     private readonly IRefreshTokenService _refreshTokenService;
@@ -79,7 +81,10 @@ public class EmployeeService : IEmployeeService
             Email = dto.Email
         };
 
-        var createUserResult = await _userManager.CreateAsync(appUser, dto.Password);
+        // All newly provisioned employees start from the same administrator-issued bootstrap
+        // password. The request field remains accepted for backward compatibility but is never
+        // trusted, so API callers cannot create an account with an unexpected initial password.
+        var createUserResult = await _userManager.CreateAsync(appUser, InitialPassword);
         if (!createUserResult.Succeeded)
         {
             var errorMessage = string.Join("; ", createUserResult.Errors.Select(e => e.Description));

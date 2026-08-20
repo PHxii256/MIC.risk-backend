@@ -7,7 +7,6 @@ namespace MIC.risk.DTOs
 {
     public record CreateEmployeeRequestDto(
     string Email,
-    string Password,
     string Name,
     long DeptId,
     string Role

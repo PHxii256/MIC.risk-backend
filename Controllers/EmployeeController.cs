@@ -7,7 +7,6 @@ using MIC.risk.Extensions;
 
 namespace MIC.risk.Controllers;
 
-[Authorize]
 [ApiController]
 [Route("api/employee")]
 public class EmployeeController : ControllerBase
@@ -20,6 +19,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = "Admin")]
     [ProducesResponseType(typeof(IEnumerable<EmployeeResponseDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
     {

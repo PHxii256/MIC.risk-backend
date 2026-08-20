@@ -398,7 +398,7 @@ namespace MIC.risk.Migrations
 
                     b.ToTable("RiskReport", null, t =>
                         {
-                            t.HasCheckConstraint("CK_RiskReport_Status", "[Status] IN ('Submitted', 'InReview', 'Resolved')");
+                            t.HasCheckConstraint("CK_RiskReport_Status", "[Status] IN ('Submitted', 'InReview', 'Resolved', 'Archived')");
                         });
                 });
 
@@ -501,9 +501,9 @@ namespace MIC.risk.Migrations
 
                     b.ToTable("RiskReportStatusHistory", null, t =>
                         {
-                            t.HasCheckConstraint("CK_RiskReportStatusHistory_NewStatus", "[NewStatus] IN ('Submitted', 'InReview', 'Resolved')");
+                            t.HasCheckConstraint("CK_RiskReportStatusHistory_NewStatus", "[NewStatus] IN ('Submitted', 'InReview', 'Resolved', 'Archived')");
 
-                            t.HasCheckConstraint("CK_RiskReportStatusHistory_OldStatus", "[OldStatus] IN ('Submitted', 'InReview', 'Resolved')");
+                            t.HasCheckConstraint("CK_RiskReportStatusHistory_OldStatus", "[OldStatus] IN ('Submitted', 'InReview', 'Resolved', 'Archived')");
                         });
                 });
 

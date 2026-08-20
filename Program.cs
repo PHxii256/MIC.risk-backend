@@ -81,17 +81,23 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy =>
     {
         var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-        if (origins.Length > 0)
-        {
-            policy.WithOrigins(origins)
-                .AllowAnyHeader()
-                .AllowAnyMethod()
-                .WithExposedHeaders("Content-Disposition")
+        var allowAllOrigins = origins.Contains("*", StringComparer.Ordinal);
 
-                // Required for the refresh-token cookie to be sent and set cross-origin.
-                // Incompatible with AllowAnyOrigin by specification, hence the explicit list.
-                .AllowCredentials();
+        if (allowAllOrigins)
+        {
+            // AllowAnyOrigin cannot be combined with credentialed requests. This predicate
+            // makes ASP.NET Core echo the requesting origin while still allowing cookies.
+            policy.SetIsOriginAllowed(_ => true);
         }
+        else if (origins.Length > 0)
+        {
+            policy.WithOrigins(origins);
+        }
+
+        policy.AllowAnyHeader()
+            .AllowAnyMethod()
+            .WithExposedHeaders("Content-Disposition")
+            .AllowCredentials();
     });
 });
 

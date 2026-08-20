@@ -285,6 +285,13 @@ public class RiskReportService : IRiskReportService
             return await GetByIdAsync(reportId, cancellationToken);
         }
 
+        if (newStatus == "Resolved" &&
+            !await _context.RiskActions.AnyAsync(a => a.ReportId == reportId, cancellationToken))
+        {
+            throw new InvalidOperationException(
+                "Add at least one mitigation before resolving this risk report.");
+        }
+
         using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
 
         try
@@ -301,7 +308,16 @@ public class RiskReportService : IRiskReportService
             _context.RiskReportStatusHistories.Add(history);
 
             report.Status = newStatus;
-            report.ResolvedAt = newStatus == "Resolved" ? DateTimeOffset.UtcNow : null;
+            if (newStatus == "Resolved")
+            {
+                report.ResolvedAt ??= DateTimeOffset.UtcNow;
+            }
+            else if (newStatus != "Archived")
+            {
+                // Archiving a resolved report must not erase its resolution timestamp. Moving
+                // it back into an active workflow state does mean it is no longer resolved.
+                report.ResolvedAt = null;
+            }
 
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);

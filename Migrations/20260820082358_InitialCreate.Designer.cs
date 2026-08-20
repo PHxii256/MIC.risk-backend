@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MIC.risk.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20260813055628_RiskSubCategory soft delete")]
-    partial class RiskSubCategorysoftdelete
+    [Migration("20260820082358_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -100,14 +100,17 @@ namespace MIC.risk.Migrations
 
                     b.Property<string>("BranchLocation")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
+                        .HasColumnType("nvarchar(450)")
                         .HasColumnName("Name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Name", "BranchLocation")
+                        .IsUnique();
 
                     b.ToTable("Department", (string)null);
                 });
@@ -152,6 +155,63 @@ namespace MIC.risk.Migrations
                     b.ToTable("Employee", (string)null);
                 });
 
+            modelBuilder.Entity("MIC.risk.Models.RefreshToken", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<string>("CreatedByIp")
+                        .HasMaxLength(45)
+                        .HasColumnType("nvarchar(45)");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset?>("FamilyExpiresAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("FamilyId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<long?>("ReplacedByTokenId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("RevokedReason")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TokenHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FamilyId");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshToken", (string)null);
+                });
+
             modelBuilder.Entity("MIC.risk.Models.Resource", b =>
                 {
                     b.Property<long>("Id")
@@ -159,6 +219,15 @@ namespace MIC.risk.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<bool>("Active")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<long>("EmpId")
                         .HasColumnType("bigint");
@@ -169,9 +238,10 @@ namespace MIC.risk.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("Name");
 
-                    b.Property<string>("ResourceTypeName")
+                    b.Property<string>("Type")
                         .IsRequired()
-                        .HasColumnType("nvarchar(100)");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTimeOffset>("UploadedAt")
                         .ValueGeneratedOnAdd()
@@ -187,9 +257,10 @@ namespace MIC.risk.Migrations
 
                     b.HasIndex("EmpId");
 
-                    b.HasIndex("ResourceTypeName");
-
-                    b.ToTable("Resource", (string)null);
+                    b.ToTable("Resource", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_Resource_Type", "[Type] IN ('Video', 'Image', 'File', 'Quiz', 'Link')");
+                        });
                 });
 
             modelBuilder.Entity("MIC.risk.Models.ResourceEngagement", b =>
@@ -199,6 +270,9 @@ namespace MIC.risk.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<long>("EmpId")
                         .HasColumnType("bigint");
@@ -212,6 +286,9 @@ namespace MIC.risk.Migrations
                     b.Property<bool>("Viewed")
                         .HasColumnType("bit");
 
+                    b.Property<DateTimeOffset?>("ViewedAt")
+                        .HasColumnType("datetimeoffset");
+
                     b.HasKey("Id");
 
                     b.HasIndex("ResourceId");
@@ -222,16 +299,54 @@ namespace MIC.risk.Migrations
                     b.ToTable("ResourceEngagement", (string)null);
                 });
 
-            modelBuilder.Entity("MIC.risk.Models.ResourceType", b =>
+            modelBuilder.Entity("MIC.risk.Models.RiskAction", b =>
                 {
-                    b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("Name");
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
 
-                    b.HasKey("Name");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.ToTable("ResourceType", (string)null);
+                    b.Property<long>("AssigneeEmpId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSDATETIMEOFFSET()");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset>("DueDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<long>("ReportId")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssigneeEmpId");
+
+                    b.HasIndex("ReportId");
+
+                    b.ToTable("RiskAction", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RiskAction_Status", "[Status] IN ('Pending', 'Completed')");
+                        });
                 });
 
             modelBuilder.Entity("MIC.risk.Models.RiskReport", b =>
@@ -254,6 +369,9 @@ namespace MIC.risk.Migrations
 
                     b.Property<long>("ReportedEvaluationId")
                         .HasColumnType("bigint");
+
+                    b.Property<DateTimeOffset?>("ResolvedAt")
+                        .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -281,7 +399,10 @@ namespace MIC.risk.Migrations
 
                     b.HasIndex("SubCategoryId");
 
-                    b.ToTable("RiskReport", (string)null);
+                    b.ToTable("RiskReport", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RiskReport_Status", "[Status] IN ('Submitted', 'InReview', 'Resolved', 'Archived')");
+                        });
                 });
 
             modelBuilder.Entity("MIC.risk.Models.RiskReportEvaluation", b =>
@@ -291,6 +412,9 @@ namespace MIC.risk.Migrations
                         .HasColumnType("bigint");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<int>("ControlEffectiveness")
+                        .HasColumnType("int");
 
                     b.Property<long>("EmpId")
                         .HasColumnType("bigint");
@@ -306,8 +430,10 @@ namespace MIC.risk.Migrations
                     b.Property<int>("Frequency")
                         .HasColumnType("int");
 
-                    b.Property<int>("MeasuresEffectiveness")
-                        .HasColumnType("int");
+                    b.Property<int>("InherentRisk")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("int")
+                        .HasComputedColumnSql("[Severity] * [Frequency]", true);
 
                     b.Property<int>("Priority")
                         .ValueGeneratedOnAdd()
@@ -317,10 +443,10 @@ namespace MIC.risk.Migrations
                     b.Property<string>("ProposedMeasures")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("RiskScore")
+                    b.Property<int>("ResidualRisk")
                         .ValueGeneratedOnAddOrUpdate()
                         .HasColumnType("int")
-                        .HasComputedColumnSql("[severity] * [frequency]", true);
+                        .HasComputedColumnSql("[Severity] * [Frequency] * [ControlEffectiveness]", true);
 
                     b.Property<int>("Severity")
                         .HasColumnType("int");
@@ -329,7 +455,16 @@ namespace MIC.risk.Migrations
 
                     b.HasIndex("EmpId");
 
-                    b.ToTable("RiskReportEvaluation", (string)null);
+                    b.ToTable("RiskReportEvaluation", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RiskReportEvaluation_ControlEffectiveness", "[ControlEffectiveness] BETWEEN 1 AND 5");
+
+                            t.HasCheckConstraint("CK_RiskReportEvaluation_Frequency", "[Frequency] BETWEEN 1 AND 5");
+
+                            t.HasCheckConstraint("CK_RiskReportEvaluation_Priority", "[Priority] BETWEEN 1 AND 5");
+
+                            t.HasCheckConstraint("CK_RiskReportEvaluation_Severity", "[Severity] BETWEEN 1 AND 5");
+                        });
                 });
 
             modelBuilder.Entity("MIC.risk.Models.RiskReportStatusHistory", b =>
@@ -369,9 +504,9 @@ namespace MIC.risk.Migrations
 
                     b.ToTable("RiskReportStatusHistory", null, t =>
                         {
-                            t.HasCheckConstraint("CK_RiskReportStatusHistory_NewStatus", "[NewStatus] IN ('Submitted', 'InReview', 'Resolved')");
+                            t.HasCheckConstraint("CK_RiskReportStatusHistory_NewStatus", "[NewStatus] IN ('Submitted', 'InReview', 'Resolved', 'Archived')");
 
-                            t.HasCheckConstraint("CK_RiskReportStatusHistory_OldStatus", "[OldStatus] IN ('Submitted', 'InReview', 'Resolved')");
+                            t.HasCheckConstraint("CK_RiskReportStatusHistory_OldStatus", "[OldStatus] IN ('Submitted', 'InReview', 'Resolved', 'Archived')");
                         });
                 });
 
@@ -392,10 +527,13 @@ namespace MIC.risk.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("NameAr")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("Name");
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NameEn")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -573,6 +711,17 @@ namespace MIC.risk.Migrations
                     b.Navigation("IdentityUser");
                 });
 
+            modelBuilder.Entity("MIC.risk.Models.RefreshToken", b =>
+                {
+                    b.HasOne("MIC.risk.Models.AppUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("MIC.risk.Models.Resource", b =>
                 {
                     b.HasOne("MIC.risk.Models.Employee", "Employee")
@@ -581,15 +730,7 @@ namespace MIC.risk.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MIC.risk.Models.ResourceType", "ResourceType")
-                        .WithMany()
-                        .HasForeignKey("ResourceTypeName")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.Navigation("Employee");
-
-                    b.Navigation("ResourceType");
                 });
 
             modelBuilder.Entity("MIC.risk.Models.ResourceEngagement", b =>
@@ -609,6 +750,25 @@ namespace MIC.risk.Migrations
                     b.Navigation("Employee");
 
                     b.Navigation("Resource");
+                });
+
+            modelBuilder.Entity("MIC.risk.Models.RiskAction", b =>
+                {
+                    b.HasOne("MIC.risk.Models.Employee", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeEmpId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MIC.risk.Models.RiskReport", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Assignee");
+
+                    b.Navigation("Report");
                 });
 
             modelBuilder.Entity("MIC.risk.Models.RiskReport", b =>

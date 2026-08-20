@@ -66,7 +66,9 @@ public class AnalyticsService : IAnalyticsService
 
         var reports = await reportsQuery.ToListAsync(cancellationToken);
 
-        var openReports = reports.Where(r => r.Status != "Resolved").ToList();
+        var openReports = reports
+            .Where(r => r.Status != "Resolved" && r.Status != "Archived")
+            .ToList();
 
         var earlyWarning = new EarlyWarningIndicatorsDto(
             CriticalResidualRisks: openReports.Count(r => GetResidualRisk(r) >= RiskScoring.CriticalBandFloor),

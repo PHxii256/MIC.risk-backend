@@ -197,7 +197,7 @@ namespace MIC.risk.Data
                 {
                     t.HasCheckConstraint(
                         "CK_RiskReport_Status",
-                        "[Status] IN ('Submitted', 'InReview', 'Resolved')"
+                        "[Status] IN ('Submitted', 'InReview', 'Resolved', 'Archived')"
                     );
                 });
             });
@@ -225,12 +225,12 @@ namespace MIC.risk.Data
                 {
                     t.HasCheckConstraint(
                         "CK_RiskReportStatusHistory_OldStatus",
-                        "[OldStatus] IN ('Submitted', 'InReview', 'Resolved')"
+                        "[OldStatus] IN ('Submitted', 'InReview', 'Resolved', 'Archived')"
                     );
 
                     t.HasCheckConstraint(
                         "CK_RiskReportStatusHistory_NewStatus",
-                        "[NewStatus] IN ('Submitted', 'InReview', 'Resolved')"
+                        "[NewStatus] IN ('Submitted', 'InReview', 'Resolved', 'Archived')"
                     );
                 });
             });
